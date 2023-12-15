@@ -1,3 +1,5 @@
+// This script use Library from https://d3-graph-gallery.com/network.html as a main source tools
+
 document.addEventListener("DOMContentLoaded", function () {
     // Create the SVG container for the graph
     const svg = d3.select("#graph-container")
@@ -15,8 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
         d3.csv("nodes.csv"),
         d3.csv("links.csv")
     ]).then(([nodes, links]) => {
-        
-
         
         // Draw the links
         link = svg.selectAll(".link")
@@ -62,13 +62,24 @@ document.addEventListener("DOMContentLoaded", function () {
             node
                 .attr("transform", d => `translate(${d.x},${d.y})`)
                 .select("circle")
-                .attr("r", d => 20);
+                .attr("r", d => calculateNodeRadius(d));
+                // Add a function to calculate the radius based on the number of connected nodes
+                function calculateNodeRadius(d) {
+                    // Count the number of links where the node is either the source or target
+                    const connectedLinks = links.filter(link => link.source.id === d.id || link.target.id === d.id);
+                    // Calculate the radius based on the number of connected nodes
+                    const radius = 20 + connectedLinks.length * 5; // Adjust the multiplier as needed
+                    return radius;
+                }
         });
 
         // Append title (tooltip) to the group for each node
         node.append("title")
             .text(d => d.name); // Set tooltip text based on node name
     });
+
+
+
 
     // Drag functions
     function dragStarted(event, d) {
